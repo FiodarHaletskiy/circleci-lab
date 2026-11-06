@@ -5,7 +5,7 @@ import re
 BASE_PRICE = 3.0  # базовый тариф, BYN
 PRICE_PER_KG = 0.8  # BYN за килограмм
 PRICE_PER_KM = 0.02  # BYN за километр
-EXPRESS_FACTOR = 1.2  # наценка за экспресс-доставку
+EXPRESS_FACTOR = 1.5  # наценка за экспресс-доставку
 MAX_WEIGHT_KG = 30
 KM_PER_DAY = 300
 TRACKING_PATTERN = re.compile(r"^SHP-\d{6}$")
