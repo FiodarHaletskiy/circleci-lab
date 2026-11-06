@@ -1,19 +1,53 @@
 version: 2.1
 
-jobs:
-  test:
+executors:
+  python-executor:
     docker:
       - image: cimg/python:3.11
+
+commands:
+  install-dependencies:
+    description: "Установка зависимостей с кэшированием pip"
     steps:
-      - checkout
+      - restore_cache:
+          keys:
+            - pip-v1-{{ checksum "requirements.txt" }}
+            - pip-v1-
       - run:
           name: Install dependencies
           command: pip install -r requirements.txt
+      - save_cache:
+          key: pip-v1-{{ checksum "requirements.txt" }}
+          paths:
+            - ~/.cache/pip
+
+jobs:
+  test:
+    executor: python-executor
+    steps:
+      - checkout
+      - install-dependencies
       - run:
           name: Run tests
-          command: pytest -v
+          command: |
+            mkdir -p test-results
+            pytest -v --junitxml=test-results/junit.xml
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+
+  lint:
+    executor: python-executor
+    steps:
+      - checkout
+      - install-dependencies
+      - run:
+          name: Check formatting with black
+          command: black --check --diff .
 
 workflows:
   build-and-test:
     jobs:
       - test
+      - lint
